@@ -27,7 +27,7 @@
           <slot name="show" v-bind="{ item }"></slot>
         </div>
 
-        <div class="editor--container" v-if="isElementEditing(item)">
+        <div class="editor--container w-full" v-if="isElementEditing(item)">
           <validation-observer tag="form" ref="obs">
             <template slot-scope="{ invalid, validated }">
               <slot name="form" v-bind="{ item: items[i] }"></slot>
