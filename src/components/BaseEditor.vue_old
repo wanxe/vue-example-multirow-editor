@@ -1,0 +1,152 @@
+<template>
+  <div class="base-editor--layout w-full">
+    <editor-heading
+      :disabled="isAnyElementEditing"
+      @click="addNew"
+    ></editor-heading>
+
+    <editor-list :items="innerItems">
+      <template slot-scope="{ item, i }">
+        <div class="show--container" v-if="!isElementEditing(item)" :key="i">
+          <div
+            class="show--toolbar flex w-full bg-grey-light p-2 align-center justify-end"
+          >
+            <button
+              @click="onEdit(item);"
+              class="bg-white hover:bg-grey-lightest text-grey-darkest py-2 px-4 rounded"
+            >
+              edit
+            </button>
+            <button
+              @click="onRemove(item);"
+              class="bg-white hover:bg-grey-lightest text-grey-darkest py-2 px-4 ml-2 rounded"
+            >
+              remove
+            </button>
+          </div>
+          <show class="p-4" v-bind="{ item }"></show>
+        </div>
+
+        <div class="editor--container" v-if="isElementEditing(item)">
+          <validation-observer tag="form" ref="obs">
+            <template slot-scope="{ invalid, validated }">
+              <editor class="p-4" v-model="items[i]" ref="editor"></editor>
+
+              <footer class="toolbar bg-grey-lighter p-2 flex">
+                <button
+                  type="button"
+                  class="bg-blue hover:bg-blue-dark text-white py-2 px-4 mr-2 border rounded"
+                  :class="{ 'opacity-50': validated && invalid }"
+                  :disabled="validated && invalid"
+                  @click="onSaveChanges(item);"
+                >
+                  Save changes
+                </button>
+                <button
+                  type="button"
+                  class="bg-transparent hover:bg-red text-red-dark font-semibold hover:text-white py-2 px-4 border border-red hover:border-transparent rounded"
+                  @click="onCancel(item);"
+                >
+                  cancel
+                </button>
+              </footer>
+            </template>
+          </validation-observer>
+        </div>
+      </template>
+    </editor-list>
+  </div>
+</template>
+
+<script>
+import Show from "./EditorShow";
+import Editor from "./Editor";
+import EditorHeading from "./BaseEditor/BaseEditorHeading";
+import EditorList from "./BaseEditor/BaseEditorList";
+import { ValidationObserver } from "vee-validate";
+
+class Model {
+  constructor() {
+    this.text = "";
+    this.whatever = [];
+    this.isDirty = true;
+  }
+}
+
+export default {
+  name: "HelloWorld",
+  props: ["items"],
+  components: {
+    Show,
+    Editor,
+    EditorHeading,
+    EditorList,
+    ValidationObserver
+  },
+  data() {
+    return {
+      editing: [],
+      innerItems: this.items,
+      oldVal: null
+    };
+  },
+  computed: {
+    isAnyElementEditing() {
+      return this.editing.length > 0;
+    }
+  },
+  methods: {
+    addNew() {
+      this.closeAll();
+      const newModel = new Model();
+      newModel.id = this.innerItems.length + 1;
+      this.editing.unshift(newModel.id);
+      this.innerItems.unshift(newModel);
+    },
+    onEdit(item) {
+      this.closeAll();
+      this.oldVal = { ...item };
+      this.editing.push(item.id);
+    },
+    onRemove(item) {
+      this.innerItems = this.innerItems.filter(a => a.id !== item.id);
+    },
+    async validateForm() {
+      return this.$refs.obs.validate();
+    },
+    async onSaveChanges(item) {
+      const isValid = await this.validateForm();
+      if (!isValid) return;
+
+      this.closeAll();
+      if (item.isDirty) {
+        delete item.isDirty;
+      }
+      const itemIndex = this.getItemIndex(item);
+      this.innerItems.splice(itemIndex, 1, item);
+    },
+    onCancel(item) {
+      const index = this.getEditingIndex(item);
+      this.editing.splice(index, 1);
+      const itemIndex = this.getItemIndex(item);
+      if (item.isDirty) {
+        this.innerItems.splice(itemIndex, 1);
+        return;
+      }
+      this.innerItems.splice(itemIndex, 1, this.oldVal);
+    },
+    closeAll(item) {
+      this.editing = [];
+    },
+    isElementEditing(item) {
+      return this.getEditingIndex(item) > -1;
+    },
+    getEditingIndex(item) {
+      return this.editing.findIndex(idx => idx === item.id);
+    },
+    getItemIndex(item) {
+      return this.innerItems.findIndex(a => a.id === item.id);
+    }
+  }
+};
+</script>
