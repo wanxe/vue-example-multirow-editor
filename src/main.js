@@ -5,7 +5,9 @@ import App from "./App";
 import VeeValidate from "vee-validate";
 
 Vue.use(VeeValidate, {
-  inject: false
+  inject: false,
+  events: "",
+  aria: true
 });
 Vue.config.productionTip = false;
 

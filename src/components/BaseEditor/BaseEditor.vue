@@ -119,13 +119,10 @@ export default {
       if (this.isAnyElementEditing || this.loading) return;
       this.$emit("remove", item);
     },
-    async validateForm() {
+    validateForm() {
       return this.$refs.obs.validate();
     },
     async onSaveChanges(item) {
-      const isValid = await this.validateForm();
-      if (!isValid) return;
-
       if (item.isDirty) {
         delete item.isDirty;
       }

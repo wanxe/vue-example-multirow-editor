@@ -48,7 +48,9 @@ export default {
     };
   },
   methods: {
-    onSubmit(item) {
+    async onSubmit(item) {
+      const isValid = await this.$refs.editor.validateForm();
+      if (!isValid) return;
       this.isLoading = true;
       console.log("sending request...", item);
       setTimeout(() => {
