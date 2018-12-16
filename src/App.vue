@@ -55,7 +55,7 @@ export default {
       console.log("sending request...", item);
       setTimeout(() => {
         this.isLoading = false;
-        console.log("request send");
+        console.log("request sent, closing element...");
         this.$refs.editor.closeAll();
       }, 2000);
     },

@@ -29,28 +29,30 @@
 
         <div class="editor--container w-full" v-if="isElementEditing(item)">
           <validation-observer tag="form" ref="obs">
-            <template slot-scope="{ invalid, validated }">
+            <div slot-scope="{ invalid, validated }">
               <slot name="form" v-bind="{ item: items[i] }"></slot>
 
-              <footer class="toolbar bg-grey-lighter p-2 flex">
-                <button
-                  type="button"
-                  class="bg-blue hover:bg-blue-dark text-white py-2 px-4 mr-2 border rounded"
-                  :class="{ 'opacity-50': loading || (validated && invalid) }"
-                  :disabled="loading || (validated && invalid)"
-                  @click="onSaveChanges(item);"
-                >
-                  Save changes
-                </button>
-                <button
-                  type="button"
-                  class="bg-transparent hover:bg-red text-red-dark font-semibold hover:text-white py-2 px-4 border border-red hover:border-transparent rounded"
-                  @click="onCancel(item);"
-                >
-                  cancel
-                </button>
-              </footer>
-            </template>
+              <slot name="controls">
+                <footer class="toolbar bg-grey-lighter p-2 flex">
+                  <button
+                    type="button"
+                    class="bg-blue hover:bg-blue-dark text-white py-2 px-4 mr-2 border rounded"
+                    :class="{ 'opacity-50': loading || (validated && invalid) }"
+                    :disabled="loading || (validated && invalid)"
+                    @click="onSaveChanges(item);"
+                  >
+                    Save changes
+                  </button>
+                  <button
+                    type="button"
+                    class="bg-transparent hover:bg-red text-red-dark font-semibold hover:text-white py-2 px-4 border border-red hover:border-transparent rounded"
+                    @click="onCancel(item);"
+                  >
+                    cancel
+                  </button>
+                </footer>
+              </slot>
+            </div>
           </validation-observer>
         </div>
       </template>
@@ -73,7 +75,7 @@ class Model {
 }
 
 export default {
-  name: "HelloWorld",
+  name: "BaseEditor",
   props: ["items", "loading"],
   components: {
     EditorHeading,
